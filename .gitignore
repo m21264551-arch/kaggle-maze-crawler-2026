@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+maze-crawler/public_kernels/
+maze-crawler/replays/
+maze-crawler/public_top2.py
+maze-crawler/submitted_v5.py
+
+# Public repo hygiene
+.env
+.env.*
+!.env.example
+!.env.sample
+.DS_Store
+node_modules/
+.venv/
+dist/
+build/
+.vercel/
+key.properties
+*.jks
+*.keystore
+*.sqlite
+*.db
+*.pkl
+*.pickle
+*.parquet
+*.zip
