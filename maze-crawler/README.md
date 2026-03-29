@@ -4,7 +4,7 @@ A maze crawling strategy game with fog of war. Two players navigate an infinite 
 
 ## Overview
 
-Each player starts with a single **Factory** robot near the bottom of a 20x20 maze. The maze scrolls northward over time — the southern boundary advances, destroying anything left behind. The last player with a surviving factory wins.
+Each player starts with a single **Factory** robot near the bottom of a 20x20 maze. The maze scrolls northward over time - the southern boundary advances, destroying anything left behind. The last player with a surviving factory wins.
 
 The maze has **east/west symmetry**: the left half mirrors the right half, with occasional doors connecting the two sides. Players start on opposite halves.
 
@@ -12,7 +12,7 @@ The maze has **east/west symmetry**: the left half mirrors the right half, with 
 
 | Type | Cost | Max Energy | Move Period | Vision | Special Abilities |
 |------|------|------------|-------------|--------|-------------------|
-| **Factory** | — | unlimited | 2 turns | 4 | BUILD, JUMP (20-turn CD), indestructible |
+| **Factory** | - | unlimited | 2 turns | 4 | BUILD, JUMP (20-turn CD), indestructible |
 | **Scout** | 50 | 100 | 1 turn | 5 | Fast explorer |
 | **Worker** | 200 | 300 | 2 turns | 3 | BUILD_DIR / REMOVE_DIR walls (100 energy) |
 | **Miner** | 300 | 500 | 2 turns | 3 | TRANSFORM into energy mine (requires mining node) |
@@ -24,35 +24,35 @@ All robots consume 1 energy per turn. Robots with 0 energy are forced idle.
 Each turn, you return a dictionary mapping robot UIDs to action strings.
 
 ### Movement
-- `NORTH`, `SOUTH`, `EAST`, `WEST` — Move one cell in that direction (blocked by walls). **A unit that successfully moves off the north or south edge of the board (no wall blocking) is destroyed.** East/west are always blocked by perimeter walls.
+- `NORTH`, `SOUTH`, `EAST`, `WEST` - Move one cell in that direction (blocked by walls). **A unit that successfully moves off the north or south edge of the board (no wall blocking) is destroyed.** East/west are always blocked by perimeter walls.
 
 ### Factory Actions
-- `BUILD_SCOUT`, `BUILD_WORKER`, `BUILD_MINER` — Spawn a new robot in the cell **north** of the factory. Requires no wall between factory and spawn cell. 10-turn cooldown between builds. The new robot is placed *before* the movement phase, so it counts as a stationary occupant during combat — if an enemy on that cell moves away the same turn, the new robot lands safely; otherwise crush combat resolves on the spawn cell.
-- `JUMP_NORTH`, `JUMP_SOUTH`, `JUMP_EAST`, `JUMP_WEST` — Leap 2 cells in a direction, ignoring all walls. The jump always happens and the cooldown is consumed. **If the landing cell is off the board, the factory is destroyed.** 20-turn cooldown.
+- `BUILD_SCOUT`, `BUILD_WORKER`, `BUILD_MINER` - Spawn a new robot in the cell **north** of the factory. Requires no wall between factory and spawn cell. 10-turn cooldown between builds. The new robot is placed *before* the movement phase, so it counts as a stationary occupant during combat - if an enemy on that cell moves away the same turn, the new robot lands safely. otherwise crush combat resolves on the spawn cell.
+- `JUMP_NORTH`, `JUMP_SOUTH`, `JUMP_EAST`, `JUMP_WEST` - Leap 2 cells in a direction, ignoring all walls. The jump always happens and the cooldown is consumed. **If the landing cell is off the board, the factory is destroyed.** 20-turn cooldown.
 
 ### Worker Actions
-- `BUILD_NORTH`, `BUILD_SOUTH`, `BUILD_EAST`, `BUILD_WEST` — Add a wall between the worker's cell and the adjacent cell in that direction. Costs 100 energy. The worker survives.
-- `REMOVE_NORTH`, `REMOVE_SOUTH`, `REMOVE_EAST`, `REMOVE_WEST` — Remove the wall between the worker's cell and the adjacent cell. Costs 100 energy. The worker survives.
+- `BUILD_NORTH`, `BUILD_SOUTH`, `BUILD_EAST`, `BUILD_WEST` - Add a wall between the worker's cell and the adjacent cell in that direction. Costs 100 energy. The worker survives.
+- `REMOVE_NORTH`, `REMOVE_SOUTH`, `REMOVE_EAST`, `REMOVE_WEST` - Remove the wall between the worker's cell and the adjacent cell. Costs 100 energy. The worker survives.
 
 **Fixed walls (cannot be modified):** the outer perimeter (E/W of the leftmost and rightmost columns) and the central mirror axis (E of column `width/2 - 1` and W of column `width/2`). BUILD/REMOVE on a fixed wall, or where the wall is already in the requested state, still costs 100 energy but has no effect. Fixed walls are drawn as **double lines** in the visualizer.
 
 ### Miner Actions
-- `TRANSFORM` — Destroy the miner and create an energy mine at its position. **Requires the miner to be standing on a mining node.** Costs 100 energy. The mine receives the miner's remaining energy (up to mine max).
+- `TRANSFORM` - Destroy the miner and create an energy mine at its position. **Requires the miner to be standing on a mining node.** Costs 100 energy. The mine receives the miner's remaining energy (up to mine max).
 
 ### Other
-- `TRANSFER_NORTH`, `TRANSFER_SOUTH`, `TRANSFER_EAST`, `TRANSFER_WEST` — Send all energy to an adjacent friendly robot. Blocked by walls. Target's energy is capped at its max (factory has no cap).
-- `IDLE` — Do nothing.
+- `TRANSFER_NORTH`, `TRANSFER_SOUTH`, `TRANSFER_EAST`, `TRANSFER_WEST` - Send all energy to an adjacent friendly robot. Blocked by walls. Target's energy is capped at its max (factory has no cap).
+- `IDLE` - Do nothing.
 
 ## Combat
 
-When two or more robots end the turn on the same cell, crush rules apply — **ownership doesn't matter; friendly fire is real.**
+When two or more robots end the turn on the same cell, crush rules apply - **ownership doesn't matter. friendly fire is real.**
 
 - **Crush hierarchy:** Factory > Miner > Worker > Scout. The stronger type destroys the weaker.
 - **Same type:** Both (or all) robots of that type are destroyed. Two friendly scouts walking onto the same cell mutually annihilate.
 - **Factory:** Indestructible against any non-factory unit (friendly or enemy) and crushes them. Two enemy factories on the same cell mutually destroy each other (game ends, see Win Conditions).
 - **Crystal on combat cell:** The surviving robot (if any) collects the crystal energy. If no robot survives, the crystal is consumed.
 
-Spawning a robot onto an occupied cell triggers combat normally — including friendly fire if the spawn cell is held by your own unit.
+Spawning a robot onto an occupied cell triggers combat normally - including friendly fire if the spawn cell is held by your own unit.
 
 ## Map Features
 
@@ -90,18 +90,18 @@ If a factory falls below the southern boundary, that player is eliminated.
 
 ## Turn Processing Order
 
-1. **Cooldown tick** — Decrement move, jump, and build cooldowns
-2. **Action validation** — Verify action legality
-3. **Energy consumption** — Each robot loses 1 energy; 0-energy robots forced idle
-4. **Special actions** — TRANSFORM (miner), BUILD_DIR/REMOVE_DIR (worker walls), BUILD_SCOUT/WORKER/MINER (factory), TRANSFER (in that order)
-5. **Movement + combat** — Simultaneous movement, then resolve collisions
-6. **Crystal collection** — Robots on crystal cells collect energy
-7. **Mine energy fill** — Robots on friendly mines collect energy
-8. **Mine generation** — Each mine gains 50 energy (up to max 1000)
-9. **Scroll advancement** — Advance boundaries, generate new row, place crystals/nodes
-10. **Boundary destruction** — Destroy robots/mines below southern boundary
+1. **Cooldown tick** - Decrement move, jump, and build cooldowns
+2. **Action validation** - Verify action legality
+3. **Energy consumption** - Each robot loses 1 energy. 0-energy robots forced idle
+4. **Special actions** - TRANSFORM (miner), BUILD_DIR/REMOVE_DIR (worker walls), BUILD_SCOUT/WORKER/MINER (factory), TRANSFER (in that order)
+5. **Movement + combat** - Simultaneous movement, then resolve collisions
+6. **Crystal collection** - Robots on crystal cells collect energy
+7. **Mine energy fill** - Robots on friendly mines collect energy
+8. **Mine generation** - Each mine gains 50 energy (up to max 1000)
+9. **Scroll advancement** - Advance boundaries, generate new row, place crystals/nodes
+10. **Boundary destruction** - Destroy robots/mines below southern boundary
 11. **Win condition check**
-12. **Update observations** — Compute fog of war, build per-player views
+12. **Update observations** - Compute fog of war, build per-player views
 
 ## Win Conditions
 
@@ -111,9 +111,9 @@ If a factory falls below the southern boundary, that player is eliminated.
 
 ### Tiebreaker cascade
 
-1. **Total energy** across all robots — higher wins
-2. **Unit count** across all robots — higher wins
-3. **True draw** — both players receive reward `0.5`
+1. **Total energy** across all robots - higher wins
+2. **Unit count** across all robots - higher wins
+3. **True draw** - both players receive reward `0.5`
 
 ## Reward
 
@@ -121,7 +121,7 @@ If a factory falls below the southern boundary, that player is eliminated.
 - **Win by tiebreaker cascade:** `1`
 - **Loss by tiebreaker cascade:** `0`
 - **Draw:** `0.5`
-- **Eliminated (opponent survives):** `step_eliminated - episodeSteps - 1` (negative value); winner gets total energy
+- **Eliminated (opponent survives):** `step_eliminated - episodeSteps - 1` (negative value). winner gets total energy
 
 ## Observation Format
 
@@ -130,10 +130,10 @@ def agent(obs, config):
     obs.player        # Your player index (0 or 1)
     obs.walls         # Flat array: index = (row - southBound) * width + col
                       # Values: wall bitfield, -1 = undiscovered
-    obs.crystals      # {"col,row": energy} — only currently visible
+    obs.crystals      # {"col,row": energy} - only currently visible
     obs.robots        # {"uid": [type, col, row, energy, owner, move_cd, jump_cd, build_cd]}
-    obs.mines         # {"col,row": [energy, maxEnergy, owner]} — remembered once seen
-    obs.miningNodes   # {"col,row": 1} — only currently visible
+    obs.mines         # {"col,row": [energy, maxEnergy, owner]} - remembered once seen
+    obs.miningNodes   # {"col,row": 1} - only currently visible
     obs.southBound    # Current southern boundary row
     obs.northBound    # Current northern boundary row
 ```
@@ -144,7 +144,7 @@ def agent(obs, config):
 N = 1, E = 2, S = 4, W = 8
 ```
 
-Check for a wall: `if wall_value & 1:` means there's a north wall. Fixed walls (perimeter and middle axis) have the same bitfield representation but cannot be modified by workers; the visualizer renders them as double lines.
+Check for a wall: `if wall_value & 1:` means there's a north wall. Fixed walls (perimeter and middle axis) have the same bitfield representation but cannot be modified by workers. the visualizer renders them as double lines.
 
 ## Quick Start
 
